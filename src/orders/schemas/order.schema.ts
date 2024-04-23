@@ -1,30 +1,42 @@
-import mongoose from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-export const OrderSchema = new mongoose.Schema({
-  userIdentifier: { type: String, required: true },
-  sendCurrency: { type: String, required: true },
-  receiveCurrency: { type: String, required: true },
-  sendAmount: { type: Number, required: true },
-  receiveAmount: { type: Number, required: true },
-  sendBank: { type: String, required: true },
-  receiveBank: { type: String, required: true },
-  ownerName: { type: String, required: true },
-  ownerData: { type: String, required: true },
-  status: {
-    type: String,
-    default: 'pending', // pending, waitingAccept, completed, cancelled
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    required: true,
-  },
-  expiresAt: {
-    type: Date,
-    default: () => Date.now() + 30 * 60000,
-    required: true,
-  },
-  qrCodeFileId: String, // Опционально для QR кодов
-  hash: { type: String, required: true },
-});
+@Schema()
+export class Order {
+  @Prop()
+  sendCurrency: string;
+
+  @Prop()
+  receiveCurrency: string;
+
+  @Prop()
+  sendAmount: number;
+
+  @Prop()
+  receiveAmount: number;
+
+  @Prop()
+  sendBank: string;
+
+  @Prop()
+  receiveBank: string;
+
+  @Prop()
+  ownerName: string;
+
+  @Prop()
+  ownerData: string;
+
+  @Prop({ default: 'pending' })
+  status: string;
+
+  @Prop({ default: Date.now })
+  createdAt: Date;
+
+  @Prop({ default: () => Date.now() + 30 * 60000 })
+  expiresAt: Date;
+}
+
+export type OrderDocument = Order & Document;
+
+export const OrderSchema = SchemaFactory.createForClass(Order);
