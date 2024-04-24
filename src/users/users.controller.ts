@@ -23,7 +23,7 @@ export class UsersController {
 
   @Get()
   @Roles(Role.Admin) // Ensure that only admins can access the user list
-  getAllUsers() {
+  findAllUsers() {
     return this.usersService.findAll();
   }
 

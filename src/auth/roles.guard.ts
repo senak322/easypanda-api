@@ -14,11 +14,16 @@ export class RolesGuard extends AuthGuard('jwt') {
       'roles',
       context.getHandler(),
     );
-    if (!requiredRoles) {
+    const request = context.switchToHttp().getRequest();
+    // console.log('User roles:', request.user?.role);
+    // console.log('Required roles:', requiredRoles);
+    if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
-    return requiredRoles.some((role) => user.roles?.includes(role));
+    const userHasRole = requiredRoles.some((role) =>
+      request.user?.role?.includes(role),
+    );
+    // console.log('User has required role:', userHasRole);
+    return userHasRole;
   }
 }
