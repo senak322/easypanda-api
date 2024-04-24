@@ -3,28 +3,31 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Order {
-  @Prop()
+  @Prop({ required: true })
+  userCookies: string;
+
+  @Prop({ required: true })
   sendCurrency: string;
 
-  @Prop()
+  @Prop({ required: true })
   receiveCurrency: string;
 
-  @Prop()
+  @Prop({ required: true })
   sendAmount: number;
 
-  @Prop()
+  @Prop({ required: true })
   receiveAmount: number;
 
-  @Prop()
+  @Prop({ required: true })
   sendBank: string;
 
-  @Prop()
+  @Prop({ required: true })
   receiveBank: string;
 
-  @Prop()
+  @Prop({ required: true })
   ownerName: string;
 
-  @Prop()
+  @Prop({ required: true })
   ownerData: string;
 
   @Prop({ default: 'pending' })
@@ -35,6 +38,12 @@ export class Order {
 
   @Prop({ default: () => Date.now() + 30 * 60000 })
   expiresAt: Date;
+
+  @Prop()
+  qrCodeFileData: string; // Опционально для QR кодов
+
+  @Prop({ required: true })
+  hash: string;
 }
 
 export type OrderDocument = Order & Document;
