@@ -34,9 +34,9 @@ export class UsersService {
     return newUser.save();
   }
 
-  async remove(id: string): Promise<void> {
-    await this.userModel.findByIdAndDelete(id).exec();
-  }
+  //   async remove(id: string): Promise<void> {
+  //     await this.userModel.findByIdAndDelete(id).exec();
+  //   }
 
   async findOne(username: string): Promise<User | undefined> {
     return this.userModel.findOne({ username }).exec();

@@ -27,6 +27,11 @@ export class OrdersController {
   getAllOrders() {
     return this.ordersService.findAll();
   }
+  @Get('approved')
+  @Roles(Role.Admin)
+  getApprovedOrders() {
+    return this.ordersService.getApprovedOrders();
+  }
   @Post()
   createOrder(@Body() createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);

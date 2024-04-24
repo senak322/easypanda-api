@@ -23,6 +23,13 @@ export class OrdersService {
       throw new NotFoundException('Could not find orders');
     }
   }
+  async getApprovedOrders(): Promise<Order[]> {
+    try {
+      return this.orderModel.find({ status: 'approved' }).exec();
+    } catch (error) {
+      throw new NotFoundException('Could not find orders');
+    }
+  }
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     try {
       const createdOrder = new this.orderModel(createOrderDto);

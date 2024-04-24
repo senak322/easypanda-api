@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  UseGuards,
-  Param,
-  Delete,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -33,10 +23,10 @@ export class UsersController {
     return this.usersService.createAdmin(createUserDto);
   }
 
-  @Delete(':id')
-  @Roles(Role.Admin)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  deleteUser(@Param('id') id: string) {
-    return this.usersService.remove(id);
-  }
+  //   @Delete(':id')
+  //   @Roles(Role.Admin)
+  //   @HttpCode(HttpStatus.NO_CONTENT)
+  //   deleteUser(@Param('id') id: string) {
+  //     return this.usersService.remove(id);
+  //   }
 }
