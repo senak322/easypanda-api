@@ -1,25 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from './user.entity';
+import { User, UserDocument } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async createAdminUser(username: string, password: string): Promise<User> {
-    const hashedPassword = await bcrypt.hash(password, 10);
+  async hasAdmin(): Promise<boolean> {
+    const adminCount = await this.userModel.countDocuments({ role: 'admin' });
+    return adminCount > 0;
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.userModel.find().exec();
+  }
+
+  async createAdmin(createUserDto: CreateUserDto): Promise<User> {
+    console.log('Attempting to create admin with:', createUserDto);
+
+    if (!createUserDto || !createUserDto.password) {
+      console.error('Failed to create admin: Password is required');
+      throw new Error('Password is required');
+    }
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const newUser = new this.userModel({
-      username,
+      username: createUserDto.username,
       password: hashedPassword,
       role: 'admin',
     });
     return newUser.save();
   }
 
-  async changeUserRole(userId: string, role: string): Promise<User> {
-    return this.userModel.findByIdAndUpdate(userId, { role }, { new: true });
+  async remove(id: string): Promise<void> {
+    await this.userModel.findByIdAndDelete(id).exec();
   }
 
   async findOne(username: string): Promise<User | undefined> {

@@ -1,11 +1,12 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
-export class AdminGuard extends JwtAuthGuard {
+export class AdminGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
   canActivate(context: ExecutionContext): boolean {
-    super.canActivate(context); // Вызов JwtAuthGuard для базовой проверки JWT
     const request = context.switchToHttp().getRequest();
-    return request.user.roles.includes('admin');
+    return request.user?.role === 'admin';
   }
 }
