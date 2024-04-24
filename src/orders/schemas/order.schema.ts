@@ -30,7 +30,7 @@ export class Order {
   @Prop({ required: true })
   ownerData: string;
 
-  @Prop({ default: 'pending' })
+  @Prop({ default: 'pending' }) //closed, closedByTimer, approved, waitingApprove
   status: string;
 
   @Prop({ default: Date.now })

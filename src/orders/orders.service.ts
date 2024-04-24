@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { Order, OrderDocument } from './schemas/order.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
+// import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
 export class OrdersService {
@@ -48,6 +49,25 @@ export class OrdersService {
     await order.updateOne({ status: 'closed' });
 
     return 'Order successfully closed.';
+  }
+
+  async approveOrder(id: string): Promise<Order> {
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Устанавливаем статус только если это допустимо
+    if (order.status !== 'approved') {
+      order.status = 'approved';
+      await order.save();
+    } else {
+      throw new BadRequestException(
+        'Order cannot be updated from approved status',
+      );
+    }
+
+    return order;
   }
 
   @Cron(CronExpression.EVERY_MINUTE) // или другой интервал

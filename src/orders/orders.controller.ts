@@ -7,16 +7,23 @@ import {
   Res,
   HttpStatus,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../common/roles.enum';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('orders')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
+  @Roles(Role.Admin)
   getAllOrders() {
     return this.ordersService.findAll();
   }
@@ -40,5 +47,10 @@ export class OrdersController {
           .json({ message: error.message });
       }
     }
+  }
+  @Patch(':id/approve')
+  @Roles(Role.Admin)
+  async confirmOrder(@Param('id') id: string) {
+    return this.ordersService.approveOrder(id);
   }
 }
