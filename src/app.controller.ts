@@ -6,7 +6,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { AppService } from './app.service';
+// import { AppService } from './app.service';
 import { RolesGuard } from './auth/roles.guard';
 // import { Roles } from './auth/roles.decorator';
 // import { Role } from './common/roles.enum';
@@ -20,15 +20,7 @@ import { Role } from './common/roles.enum';
 @Controller()
 @UseGuards(RolesGuard)
 export class AppController {
-  constructor(
-    private readonly appService: AppService,
-    private readonly usersService: UsersService,
-  ) {}
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Roles(Role.Admin)
   @Post('admin/add')

@@ -8,12 +8,15 @@ import { Model } from 'mongoose';
 import { Order, OrderDocument } from './schemas/order.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { FileDetailsDocument, FileDetails } from './schemas/file.schema';
 // import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    @InjectModel(FileDetails.name)
+    private fileDetailsModel: Model<FileDetailsDocument>,
   ) {}
 
   async findAll(): Promise<Order[]> {
@@ -30,13 +33,25 @@ export class OrdersService {
       throw new NotFoundException('Could not find orders');
     }
   }
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(
+    createOrderDto: CreateOrderDto,
+    fileDetails: FileDetails[],
+  ): Promise<Order> {
     try {
       const createdOrder = new this.orderModel(createOrderDto);
+      createdOrder.files = fileDetails;
       return await createdOrder.save();
     } catch (error) {
       throw new BadRequestException('Could not create order: ' + error);
     }
+  }
+  async findOrderByHash(hash: string): Promise<Order> {
+    const order = await this.orderModel.findOne({ hash });
+    if (!order) {
+      throw new NotFoundException(`Order with hash ${hash} not found.`);
+    }
+
+    return order;
   }
   async closeOrder(hash: string): Promise<string> {
     const order = await this.orderModel.findOne({ hash });

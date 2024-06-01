@@ -26,7 +26,4 @@ export class AppService {
       throw new Error('ADMIN_PASSWORD is not set');
     }
   }
-  getHello(): string {
-    return 'Hello World!';
-  }
 }

@@ -1,10 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { FileDetailsSchema } from './file.schema';
+import { FileDetails } from '../intersaces/file-details';
 
 @Schema()
 export class Order {
-  @Prop({ required: true })
-  userCookies: string;
+  // @Prop({ required: true })
+  // userCookies: string;
 
   @Prop({ required: true })
   sendCurrency: string;
@@ -39,8 +41,8 @@ export class Order {
   @Prop({ default: () => Date.now() + 30 * 60000 })
   expiresAt: Date;
 
-  @Prop()
-  qrCodeFileData: string; // Опционально для QR кодов
+  @Prop({ type: [FileDetailsSchema], default: [] })
+  files: FileDetails[]; // Добавляем свойство files для хранения файлов
 
   @Prop({ required: true })
   hash: string;

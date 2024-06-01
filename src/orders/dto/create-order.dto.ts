@@ -1,5 +1,6 @@
+import { FileDetails } from '../intersaces/file-details';
+
 export class CreateOrderDto {
-  readonly userCookies: string;
   readonly sendCurrency: string;
   readonly receiveCurrency: string;
   readonly sendAmount: number;
@@ -10,7 +11,6 @@ export class CreateOrderDto {
   readonly ownerData: string;
   readonly status: string;
   readonly createdAt: Date;
-  readonly updatedAt: Date;
-  readonly qrCodeFileData: string;
+  readonly qrCodeFileData: FileDetails;
   readonly hash: string;
 }
