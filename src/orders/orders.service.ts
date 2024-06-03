@@ -33,18 +33,22 @@ export class OrdersService {
       throw new NotFoundException('Could not find orders');
     }
   }
-  async create(
-    createOrderDto: CreateOrderDto,
-    fileDetails: FileDetails[],
-  ): Promise<Order> {
+  async getWaitingOrders(): Promise<Order[]> {
     try {
-      const createdOrder = new this.orderModel(createOrderDto);
-      createdOrder.files = fileDetails;
-      return await createdOrder.save();
+      return this.orderModel.find({ status: 'waitingApprove' }).exec();
     } catch (error) {
-      throw new BadRequestException('Could not create order: ' + error);
+      throw new NotFoundException('Could not find orders');
     }
   }
+  async create(
+    createOrderDto: CreateOrderDto,
+    fileDetails: any[],
+  ): Promise<Order> {
+    const createdOrder = new this.orderModel(createOrderDto);
+    createdOrder.files = fileDetails;
+    return createdOrder.save();
+  }
+
   async findOrderByHash(hash: string): Promise<Order> {
     const order = await this.orderModel.findOne({ hash });
     if (!order) {
@@ -71,6 +75,17 @@ export class OrdersService {
     await order.updateOne({ status: 'closed' });
 
     return 'Order successfully closed.';
+  }
+
+  async acceptOrder(hash: string, file: any): Promise<Order> {
+    const order = await this.orderModel.findOne({ hash });
+    if (!order) {
+      throw new NotFoundException(`Order with hash ${hash} not found.`);
+    }
+    order.files.push(file);
+    order.status = 'waitingApprove';
+    await order.save();
+    return order;
   }
 
   async approveOrder(id: string): Promise<Order> {
