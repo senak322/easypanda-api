@@ -121,6 +121,7 @@ export class OrdersController {
         name: file.originalname,
         size: file.size,
         path: file.path,
+        filename: file.filename,
       })) || [];
 
     return this.ordersService.create(createOrderDto, fileDetails);
@@ -202,5 +203,20 @@ export class OrdersController {
   @Patch(':id/approve')
   async confirmOrder(@Param('id') id: string) {
     return this.ordersService.approveOrder(id);
+  }
+  @Get(':hash/files/:filename')
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Admin)
+  async downloadFile(
+    @Param('hash') hash: string,
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
+    const filePath = join(__dirname, '../../uploads', hash, filename);
+    if (existsSync(filePath)) {
+      res.download(filePath);
+    } else {
+      res.status(HttpStatus.NOT_FOUND).json({ message: 'File not found' });
+    }
   }
 }

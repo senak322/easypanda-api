@@ -9,6 +9,9 @@ import { Order, OrderDocument } from './schemas/order.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { FileDetailsDocument, FileDetails } from './schemas/file.schema';
+import { existsSync, readdirSync } from 'fs';
+import { join } from 'path';
+import { OrderWithFiles } from './dto/order-with-files.dto';
 // import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
@@ -33,12 +36,29 @@ export class OrdersService {
       throw new NotFoundException('Could not find orders');
     }
   }
-  async getWaitingOrders(): Promise<Order[]> {
+  async getWaitingOrders(): Promise<OrderWithFiles[]> {
     try {
-      return this.orderModel.find({ status: 'waitingApprove' }).exec();
+      const orders = await this.orderModel
+        .find({ status: 'waitingApprove' })
+        .exec();
+      return orders.map((order) => {
+        const fileUrls = this.getFileUrls(order.hash);
+        return { ...order.toObject(), fileUrls } as OrderWithFiles;
+      });
     } catch (error) {
       throw new NotFoundException('Could not find orders');
     }
+  }
+
+  private getFileUrls(hash: string): string[] {
+    const uploadPath = join(__dirname, '../../uploads', hash);
+    if (existsSync(uploadPath)) {
+      const files = readdirSync(uploadPath);
+      return files.map(
+        (file) => `http://localhost:3001/orders/${hash}/files/${file}`,
+      );
+    }
+    return [];
   }
   async create(
     createOrderDto: CreateOrderDto,
@@ -77,7 +97,7 @@ export class OrdersService {
     return 'Order successfully closed.';
   }
 
-  async acceptOrder(hash: string, file: any): Promise<Order> {
+  async acceptOrder(hash: string, file: any): Promise<OrderWithFiles> {
     const order = await this.orderModel.findOne({ hash });
     if (!order) {
       throw new NotFoundException(`Order with hash ${hash} not found.`);
@@ -85,7 +105,8 @@ export class OrdersService {
     order.files.push(file);
     order.status = 'waitingApprove';
     await order.save();
-    return order;
+    const fileUrls = this.getFileUrls(hash);
+    return { ...order.toObject(), fileUrls } as OrderWithFiles;
   }
 
   async approveOrder(id: string): Promise<Order> {
