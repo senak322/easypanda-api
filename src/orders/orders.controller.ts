@@ -51,6 +51,12 @@ export class OrdersController {
       }
     }
   }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Get('approved')
+  getApprovedOrders() {
+    return this.ordersService.getApprovedOrders();
+  }
   @Get(':hash')
   async findOrderByHash(@Param('hash') hash: string, @Res() res: Response) {
     try {
@@ -180,18 +186,19 @@ export class OrdersController {
 
     return this.ordersService.acceptOrder(hash, fileDetails);
   }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   @Get()
   getAllOrders() {
     return this.ordersService.findAll();
   }
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin)
-  @Get('approved')
-  getApprovedOrders() {
-    return this.ordersService.getApprovedOrders();
-  }
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Admin)
+  // @Get('approved')
+  // getApprovedOrders() {
+  //   return this.ordersService.getApprovedOrders();
+  // }
   // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles(Role.Admin)
   // @Get('waitingApprove')

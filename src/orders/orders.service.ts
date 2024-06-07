@@ -31,6 +31,8 @@ export class OrdersService {
   }
   async getApprovedOrders(): Promise<Order[]> {
     try {
+      console.log('ya tut');
+
       return this.orderModel.find({ status: 'approved' }).exec();
     } catch (error) {
       throw new NotFoundException('Could not find orders');
@@ -67,6 +69,25 @@ export class OrdersService {
     const createdOrder = new this.orderModel(createOrderDto);
     createdOrder.files = fileDetails;
     return createdOrder.save();
+  }
+
+  async approveOrder(id: string): Promise<Order> {
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Устанавливаем статус только если это допустимо
+    if (order.status !== 'approved') {
+      order.status = 'approved';
+      await order.save();
+    } else {
+      throw new BadRequestException(
+        'Order cannot be updated from approved status',
+      );
+    }
+
+    return order;
   }
 
   async findOrderByHash(hash: string): Promise<Order> {
@@ -109,24 +130,24 @@ export class OrdersService {
     return { ...order.toObject(), fileUrls } as OrderWithFiles;
   }
 
-  async approveOrder(id: string): Promise<Order> {
-    const order = await this.orderModel.findById(id).exec();
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
+  // async approveOrder(id: string): Promise<Order> {
+  //   const order = await this.orderModel.findById(id).exec();
+  //   if (!order) {
+  //     throw new NotFoundException('Order not found');
+  //   }
 
-    // Устанавливаем статус только если это допустимо
-    if (order.status !== 'approved') {
-      order.status = 'approved';
-      await order.save();
-    } else {
-      throw new BadRequestException(
-        'Order cannot be updated from approved status',
-      );
-    }
+  //   // Устанавливаем статус только если это допустимо
+  //   if (order.status !== 'approved') {
+  //     order.status = 'approved';
+  //     await order.save();
+  //   } else {
+  //     throw new BadRequestException(
+  //       'Order cannot be updated from approved status',
+  //     );
+  //   }
 
-    return order;
-  }
+  //   return order;
+  // }
 
   @Cron(CronExpression.EVERY_MINUTE) // или другой интервал
   async checkPendingOrders() {
