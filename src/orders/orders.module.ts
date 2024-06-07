@@ -6,6 +6,7 @@ import { OrdersController } from './orders.controller';
 import { FileDetails, FileDetailsSchema } from './schemas/file.schema';
 import { AuthModule } from 'src/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { EmailService } from '../email.service';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '60m' },
     }),
   ],
-  providers: [OrdersService],
+  providers: [OrdersService, EmailService],
   controllers: [OrdersController],
 })
 export class OrdersModule {}

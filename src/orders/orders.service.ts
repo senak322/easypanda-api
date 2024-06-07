@@ -12,6 +12,7 @@ import { FileDetailsDocument, FileDetails } from './schemas/file.schema';
 import { existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { OrderWithFiles } from './dto/order-with-files.dto';
+import { EmailService } from '../email.service';
 // import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class OrdersService {
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     @InjectModel(FileDetails.name)
     private fileDetailsModel: Model<FileDetailsDocument>,
+    private emailService: EmailService,
   ) {}
 
   async findAll(): Promise<Order[]> {
@@ -31,8 +33,6 @@ export class OrdersService {
   }
   async getApprovedOrders(): Promise<Order[]> {
     try {
-      console.log('ya tut');
-
       return this.orderModel.find({ status: 'approved' }).exec();
     } catch (error) {
       throw new NotFoundException('Could not find orders');
@@ -68,7 +68,16 @@ export class OrdersService {
   ): Promise<Order> {
     const createdOrder = new this.orderModel(createOrderDto);
     createdOrder.files = fileDetails;
-    return createdOrder.save();
+
+    const savedOrder = await createdOrder.save();
+    // Отправка email после создания заявки
+    await this.emailService.sendMail(
+      'easypanda247@gmail.com',
+      'Новая заявка',
+      `Создана новая заявка с хэшем ${savedOrder.hash}`,
+    );
+
+    return savedOrder;
   }
 
   async approveOrder(id: string): Promise<Order> {
