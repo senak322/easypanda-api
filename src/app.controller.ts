@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Get,
+  // Get,
   Post,
   Request,
   UseGuards,
@@ -11,7 +11,7 @@ import { RolesGuard } from './auth/roles.guard';
 // import { Roles } from './auth/roles.decorator';
 // import { Role } from './common/roles.enum';
 // import { AdminGuard } from './auth/admin-auth.guard';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
+// import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Roles } from './auth/roles.decorator';
 import { CreateUserDto } from './users/dto/create-user.dto';
 import { UsersService } from './users/users.service';
@@ -31,10 +31,10 @@ export class AppController {
     throw new Error('Only admins can add new admins.');
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin)
-  @Get('admin/dashboard')
-  getAdminDashboard() {
-    return { message: 'Доступ к данным администратора' };
-  }
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Admin)
+  // @Get('admin/dashboard')
+  // getAdminDashboard() {
+  //   return { message: 'Доступ к данным администратора' };
+  // }
 }

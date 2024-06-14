@@ -5,6 +5,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: true, // Включает CORS с настройками по умолчанию
   });
-  await app.listen(3001);
+
+  // Устанавливаем глобальный префикс маршрутов
+  app.setGlobalPrefix('api');
+
+  await app.listen(8001);
 }
 bootstrap();
