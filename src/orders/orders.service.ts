@@ -14,6 +14,7 @@ import { join } from 'path';
 import { OrderWithFiles } from './dto/order-with-files.dto';
 import { EmailService } from '../email.service';
 // import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class OrdersService {
@@ -22,6 +23,7 @@ export class OrdersService {
     @InjectModel(FileDetails.name)
     private fileDetailsModel: Model<FileDetailsDocument>,
     private emailService: EmailService,
+    private configService: ConfigService,
   ) {}
 
   async findAll(): Promise<Order[]> {
@@ -56,8 +58,9 @@ export class OrdersService {
     const uploadPath = join(__dirname, '../../uploads', hash);
     if (existsSync(uploadPath)) {
       const files = readdirSync(uploadPath);
+      const serverDomain = this.configService.get<string>('SERVER_DOMAIN');
       return files.map(
-        (file) => `http://localhost:3001/orders/${hash}/files/${file}`,
+        (file) => `${serverDomain}/orders/${hash}/files/${file}`,
       );
     }
     return [];
